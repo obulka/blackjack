@@ -153,20 +153,19 @@ impl Viewport3d {
 
         if !self.mouse_captured {
             // Update status
-            if self.input.mouse.buttons().pressed(MouseButton::Left) {
-                if self.input.shift_down {
-                    let cam_rotation = Mat4::from_rotation_y(self.camera.yaw.get().to_radians())
-                        * Mat4::from_rotation_x(self.camera.pitch.get().to_radians());
-                    let camera_right = cam_rotation.transform_point3(Vec3::X);
-                    let camera_up = cam_rotation.transform_vector3(Vec3::Y);
-                    let move_speed = self.camera.distance.get() / MAX_DIST;
-                    self.camera.focus_point +=
-                        self.input.mouse.cursor_delta().x * camera_right * move_speed
-                            + self.input.mouse.cursor_delta().y * -camera_up * move_speed;
-                } else {
-                    self.camera.yaw += self.input.mouse.cursor_delta().x * 2.0;
-                    self.camera.pitch += self.input.mouse.cursor_delta().y * 2.0;
-                }
+            if self.input.mouse.buttons().pressed(MouseButton::Right) {
+                self.camera.yaw += self.input.mouse.cursor_delta().x * 2.0;
+                self.camera.pitch += self.input.mouse.cursor_delta().y * 2.0;
+            }
+            else if self.input.mouse.buttons().pressed(MouseButton::Middle) {
+                let cam_rotation = Mat4::from_rotation_y(self.camera.yaw.get().to_radians())
+                    * Mat4::from_rotation_x(self.camera.pitch.get().to_radians());
+                let camera_right = cam_rotation.transform_point3(Vec3::X);
+                let camera_up = cam_rotation.transform_vector3(Vec3::Y);
+                let move_speed = self.camera.distance.get() / MAX_DIST;
+                self.camera.focus_point +=
+                    self.input.mouse.cursor_delta().x * camera_right * move_speed
+                        + self.input.mouse.cursor_delta().y * -camera_up * move_speed;
             }
             self.camera.distance.set(|dist| {
                 (dist - self.input.mouse.wheel_delta() * 0.5).clamp(MIN_DIST, MAX_DIST)
